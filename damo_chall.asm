@@ -1,6 +1,6 @@
         
         ;
-        ; this was written especially for Damos challenge,
+        ; this was written for Damos challenge,
         ; to exploit strcpy() vulnerability
         ; not much here is re-usable..
         ;
