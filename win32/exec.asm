@@ -28,20 +28,6 @@
     .code
     
     assume fs:nothing
-    ; *************************************************************************
-    ; 69 byte Execute command shellcode for all versions of windows
-    ;
-    ; * Doesn't contain null bytes
-    ; * Doesn't modify code
-    ; * Returns to caller
-    ; * Supports up to 255 byte command
-    ;
-    ; Improved version of win_exec.asm i wrote back in 2004 for 29a#8
-    ;
-    ; Assemble: jwasm -I C:\WinInc208\Include\ -bin exec32.asm
-    ;
-    ; Last update: August 2013
-    ; *************************************************************************
 code_start:
     jmp   init_cmd
 call_winexec:
@@ -85,6 +71,6 @@ init_cmd:
     push  eax     ; doesn't matter..
     call  call_winexec
 cmd_line:
-    db 'cmd /c echo Hello, World! >test.txt && notepad test.txt', 00h
+    ;db 'cmd /c echo Hello, World! >test.txt && notepad test.txt', 00h
     
     end
