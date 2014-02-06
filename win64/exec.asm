@@ -21,35 +21,9 @@
  ;  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
  ;  OTHER DEALINGS IN THE SOFTWARE.
  ;
- 
     .x64
-    ifndef TEST_CODE
-      .model flat, fastcall
-    endif
-    option casemap:none
-    
-    .nolist
-    .nocref
-    
-    WIN32_LEAN_AND_MEAN equ 1
-    _WIN64 equ 1
-    include windows.inc  ; from win32inc by japheth
-    includelib kernel32.lib
-    
-    .list
-    .cref
-    
+    .model flat, fastcall
     .code
-start:
-ifdef TEST_CODE
-    int 3
-    mov rax, cmd_line - code_start
-    call code_start
-    
-    xor ecx, ecx
-    call ExitProcess
-endif    
-    assume fs:nothing
 code_start:
     sub   rsp, 28h
     jmp   init_cmd
@@ -90,6 +64,6 @@ find_loop:
 init_cmd:
     call  calc_pos
 cmd_line:
-    db 'cmd /c echo Hello, World! >test.txt && notepad test.txt', 00h
+    ;db 'cmd /c echo Hello, World! >test.txt && notepad test.txt', 00h
 
-    end start
+    end
