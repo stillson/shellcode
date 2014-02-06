@@ -3,11 +3,8 @@ I later discovered it was inspired by Arkon [2]
 
 It got me thinking about other ways to do it.
 
-I'm using NASM which is what I suspect Peter uses too 
-because the encodings with other assemblers like 
-JWASM/MASM are slightly different.
-
-It supports mixing 32 and 64 bit code too which is very useful.
+I'm using NASM which is what I suspect Peter uses too.
+It supports mixing 32 and 64 bit code which is very useful.
 
 Arkon's initial solution in 6 bytes was this:
 
