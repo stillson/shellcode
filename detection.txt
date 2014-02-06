@@ -155,7 +155,7 @@ Here's one using CDQ / CDO in 9 bytes
 If you find any errors with the above examples, don't hesitate to contact and correct me.
 
 Regards,
-Kevin
+Kevin ( @cmpxchg8 )
 
 References:
 
