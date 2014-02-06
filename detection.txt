@@ -9,7 +9,7 @@ JWASM/MASM are slightly different.
 
 It supports mixing 32 and 64 bit code too which is very useful.
 
-Arkon's initial solution in 7 bytes was this:
+Arkon's initial solution in 6 bytes was this:
 
 
         xor eax, eax
