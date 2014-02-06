@@ -1,15 +1,102 @@
-Peter Ferrie posted some nice code to detect 64-bit [here][1]
+Peter Ferrie posted some nice code to detect 64-bit [1]
 
-It got me thinking about other ways to do it but it seems he really did pick
-the most efficient code he could find.
+It got me thinking about other ways to do it but it seems 
+he really did pick the most efficient code he could find.
 
-All the combinations I found exceeded 5 bytes but there's always
-possibility more exist.
+I'm using NASM which is what I suspect Peter uses too 
+because the encodings with other assemblers like 
+JWASM/MASM are slightly different.
 
-I was using NASM which is what I suspect Peter uses too because the encodings
-with other assemblers like JWASM/MASM are different.
+It supports mixing 32 and 64 bit code too which is very useful.
 
-It supports mixing 32 and 64 bit code too which is useful.
+The following is Peter's code.
+
+        bits 32
+        xor  ecx, ecx
+        inc  ecx
+        loop is_64bit 
+        
+        xor  eax, eax
+        
+    is_64bit:
+        bits 64
+        xor  rax, rax
+        
+32-bit translation
+
+    /* 00000000 */  "\0x31\0xC9"                           /*  xor ecx, ecx
+    /* 00000002 */  "\0x41"                                /*  inc ecx
+    /* 00000003 */  "\0xE2\0x00"                           /*  loop 00000005h
+    
+64-bit translation
+
+    /* 00000000 */  "\0x31\0xC9"                           /*  xor ecx, ecx
+    /* 00000002 */  "\0x41\0xE2\0x00"                      /*  loop 00000005h
+
+The 32-bit code will follow through with loop because ecx is 1. 
+The 64-bit code will branch to the is_64bit because of REX prefix. 
+Pretty neat :)
+
+There are alternatives if you get creative enough with valid
+REX prefixes. I'm using 0x48 for examples here which appears
+as DEC EAX in 32-bit code.
+
+Something similar in 5 bytes would be:
+
+
+        bits 32
+        xor  eax, eax
+        dec  eax
+        jns  is_64bit 
+        
+        xor  eax, eax
+        
+    is_64bit:
+        bits 64
+        xor  rax, rax
+    
+32-bit
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x48"                                /*  dec eax
+  /* 00000003 */  "\0x79\0x02"                           /*  jns 00000007h
+
+64-bit
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x48\0x79\0x02"                      /*  jns 00000007h
+
+The 32-bit code follows through while on 64-bit it makes the jump.
+Another example using 6 bytes.
+
+        bits 32
+        xor   eax, eax
+        dec   eax
+        xchg  eax, ecx
+        jecxz is_64bit
+        
+        xor   eax, eax
+        
+    is_64bit:
+        bits 64
+        xor   rax, rax
+    
+ 
+32-bit
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x48"                                /*  dec eax
+  /* 00000003 */  "\0x91"                                /*  xchg eax, ecx
+  /* 00000004 */  "\0xE3\0x02"                           /*  jecxz 00000008h
+
+64-bit
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x48\0x91"                           /*  xchg rax, rcx
+  /* 00000004 */  "\0xE3\0x02"                           /*  jrcxz 00000008h
+
+    
+Another very similar to above but using jns instead of jecxz
 
        bits 32
         xor   eax, eax
@@ -21,22 +108,52 @@ It supports mixing 32 and 64 bit code too which is useful.
         bits 64
         ; execute 64-bit code
 
-32-bit translation
+32-bit
 
     /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
     /* 00000002 */  "\0x48"                                /*  dec eax
     /* 00000003 */  "\0x91"                                /*  xchg eax, ecx
     /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
-64-bit translation
+64-bit
 
     /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
     /* 00000002 */  "\0x48\0x91"                           /*  xchg rax, rcx
     /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
-Just another example of how to do it but loads more should be possible :), I'll add some more
-later.
+    
+Here's one using CDQ / CDO in 9 bytes
+
+        bits 32
+        or   eax, -1        ; set 32-bits
+        dec  eax            ; cdq becomes cqo on 64-bit
+        cdq                 ; if edx is zero, we're 64-bits
+        test edx, edx
+        jz   is_64bit
+        
+        xor  eax, eax
+    is_64bit:
+       bits 64
+        xor  rax, rax
+    
+    
+32-bit
+
+  /* 00000000 */  "\0x83\0xC8\0xFF"                      /*  or eax, FFFFFFFFh
+  /* 00000003 */  "\0x48"                                /*  dec eax
+  /* 00000004 */  "\0x99"                                /*  cdq
+  /* 00000005 */  "\0x85\0xD2"                           /*  test edx, edx
+  /* 00000007 */  "\0x74\0x00"                           /*  je 00000009h     
+
+64-bit
+
+  /* 00000000 */  "\0x83\0xC8\0xFF"                      /*  or eax, FFFFFFFFh
+  /* 00000003 */  "\0x48\0x99"                           /*  cqo
+  /* 00000005 */  "\0x85\0xD2"                           /*  test edx, edx
+  /* 00000007 */  "\0x74\0x00"                           /*  je 00000009h
+
+
+References:
 
    [1]: http://pferrie.host22.com/misc/isx64.htm
-
-
+  
