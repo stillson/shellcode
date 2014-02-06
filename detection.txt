@@ -34,7 +34,7 @@ It supports mixing 32 and 64 bit code too which is useful.
     /* 00000002 */  "\0x48\0x91"                           /*  xchg rax, rcx
     /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
-Just another example of how to do it but loads more exist, I'll add some more
+Just another example of how to do it but loads more should be possible :), I'll add some more
 later.
 
    [1]: http://pferrie.host22.com/misc/isx64.htm
