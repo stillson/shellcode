@@ -1,13 +1,41 @@
-Peter Ferrie posted some nice code to detect 64-bit [1]
+Peter Ferrie posted some nice code to detect 64-bit mode [1]
+I later discovered it was inspired by Arkon [2]
 
-It got me thinking about other ways to do it but it seems 
-he really did pick the most efficient code he could find.
+It got me thinking about other ways to do it.
 
 I'm using NASM which is what I suspect Peter uses too 
 because the encodings with other assemblers like 
 JWASM/MASM are slightly different.
 
 It supports mixing 32 and 64 bit code too which is very useful.
+
+Arkon's initial solution in 7 bytes was this:
+
+
+        xor eax, eax
+        db 40h
+        nop
+        jz is_64bit
+        
+        ; 32-bit code here
+    is_64bit:
+        ; ...
+  
+32-bit translation
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x40"                                /*  inc eax
+  /* 00000003 */  "\0x90"                                /*  nop
+  /* 00000004 */  "\0x74\0x00"                           /*  je 00000006h
+
+64-bit translation
+
+  /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+  /* 00000002 */  "\0x40\0x90"                           /*  nop
+  /* 00000004 */  "\0x74\0x00"                           /*  je 00000006h
+
+As Arkon explains, eax becomes 1 on 32-bit but remains zero 
+on 64-bit and makes the jump.
 
 The following is Peter's code.
 
@@ -22,24 +50,23 @@ The following is Peter's code.
         bits 64
         xor  rax, rax
         
-32-bit translation
+32-bit
 
     /* 00000000 */  "\0x31\0xC9"                           /*  xor ecx, ecx
     /* 00000002 */  "\0x41"                                /*  inc ecx
     /* 00000003 */  "\0xE2\0x00"                           /*  loop 00000005h
     
-64-bit translation
+64-bit
 
     /* 00000000 */  "\0x31\0xC9"                           /*  xor ecx, ecx
     /* 00000002 */  "\0x41\0xE2\0x00"                      /*  loop 00000005h
 
 The 32-bit code will follow through with loop because ecx is 1. 
-The 64-bit code will branch to the is_64bit because of REX prefix. 
-Pretty neat :)
+The 64-bit code will branch to the is_64bit because of REX prefix.
 
 There are alternatives if you get creative enough with valid
-REX prefixes. I'm using 0x48 for examples here which appears
-as DEC EAX in 32-bit code.
+REX prefixes which would appear as INC/DEC instructions of 
+any valid 32-bit register. I use DEC EAX for examples here.
 
 Something similar in 5 bytes would be:
 
@@ -75,11 +102,11 @@ Another example using 6 bytes.
         xchg  eax, ecx
         jecxz is_64bit
         
-        xor   eax, eax
+        ;xor   eax, eax
         
     is_64bit:
         bits 64
-        xor   rax, rax
+        ;xor   rax, rax
     
  
 32-bit
@@ -122,7 +149,7 @@ Another very similar to above but using jns instead of jecxz
     /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
     
-Here's one using CDQ / CQO in 9 bytes
+Here's one using CDQ / CQO in 9 bytes.
 
         bits 32
         or   eax, -1        ; set 32-bits
@@ -152,12 +179,17 @@ Here's one using CDQ / CQO in 9 bytes
   /* 00000005 */  "\0x85\0xD2"                           /*  test edx, edx
   /* 00000007 */  "\0x74\0x00"                           /*  je 00000009h
 
-If you find any errors with the above examples, don't hesitate to contact and correct me.
 
-Regards,
+If you find any errors with these examples, don't hesitate to contact 
+and correct me.
+
+BR
 Kevin ( @cmpxchg8 )
 
 References:
-
-   [1]: http://pferrie.host22.com/misc/isx64.htm
-  
+   [1]: IS_X64() IN 5 BYTES (INCLUDING BRANCH)
+      http://pferrie.host22.com/misc/isx64.htm
+    
+   [2]: isX64 Gem
+      http://www.ragestorm.net/blogs/?p=376
+   
