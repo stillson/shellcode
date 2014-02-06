@@ -122,7 +122,7 @@ Another very similar to above but using jns instead of jecxz
     /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
     
-Here's one using CDQ / CDO in 9 bytes
+Here's one using CDQ / CQO in 9 bytes
 
         bits 32
         or   eax, -1        ; set 32-bits
