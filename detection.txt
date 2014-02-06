@@ -152,6 +152,10 @@ Here's one using CDQ / CDO in 9 bytes
   /* 00000005 */  "\0x85\0xD2"                           /*  test edx, edx
   /* 00000007 */  "\0x74\0x00"                           /*  je 00000009h
 
+If you find any errors with the above examples, don't hesitate to contact and correct me.
+
+Regards,
+Kevin
 
 References:
 
