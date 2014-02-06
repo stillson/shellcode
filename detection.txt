@@ -30,9 +30,9 @@ It supports mixing 32 and 64 bit code too which is useful.
 
 64-bit translation
 
-    /* 00000006 */  "\0x31\0xC0"                           /*  xor eax, eax
-    /* 00000008 */  "\0x48\0x91"                           /*  xchg rax, rcx
-    /* 0000000A */  "\0x79\0x00"                           /*  jns 00000006h
+    /* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+    /* 00000002 */  "\0x48\0x91"                           /*  xchg rax, rcx
+    /* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h
 
 Just another example of how to do it but loads more exist, I'll add some more
 later.
