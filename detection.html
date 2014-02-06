@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>Intermixing 32 and 64-bit code for x86</title>
+</head>
+<body>
+Peter Ferrie posted some nice code to detect 64-bit <a href="http://pferrie.host22.com/misc/isx64.htm">here</a><br>
+<br>It got me thinking about other ways to do it but it seems he really did
+pick the most efficient code he could find.
+<br>Most if not all the combinations I found exceeded 5 bytes but
+there's always possibility more exist.<br>
+<br>I was using NASM which is what I suspect Peter uses too because the encodings
+with other assemblers like JWASM/MASM are different.
+<br>It supports mixing 32 and 64 bit code too which is useful.
+
+<pre>
+   bits 32
+    xor   eax, eax
+    dec   eax
+    xchg  eax, ecx
+    jns   is_64bit
+    
+    ; execute 32-bit code
+is_64bit:
+    bits 64
+    ; execute 64-bit code
+</pre>
+
+32-bit translation
+
+<pre>
+/* 00000000 */  "\0x31\0xC0"                           /*  xor eax, eax
+/* 00000002 */  "\0x48"                                /*  dec eax
+/* 00000003 */  "\0x91"                                /*  xchg eax, ecx
+/* 00000004 */  "\0x79\0x00"                           /*  jns 00000006h</pre>
+
+64-bit translation
+
+<pre>
+/* 00000006 */  "\0x31\0xC0"                           /*  xor eax, eax
+/* 00000008 */  "\0x48\0x91"                           /*  xchg rax, rcx
+/* 0000000A */  "\0x79\0x7E"                           /*  jns 0000008Ah</pre>
+
+Just another example of how to do it but loads more exist, I'll add some more later.
+  
+</body>
+</html>
