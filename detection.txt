@@ -3,7 +3,7 @@ Peter Ferrie posted some nice code to detect 64-bit [here][1]
 It got me thinking about other ways to do it but it seems he really did pick
 the most efficient code he could find.
 
-Most if not all the combinations I found exceeded 5 bytes but there's always
+All the combinations I found exceeded 5 bytes but there's always
 possibility more exist.
 
 I was using NASM which is what I suspect Peter uses too because the encodings
