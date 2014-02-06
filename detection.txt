@@ -177,6 +177,13 @@ Here's one using CDQ / CQO in 9 bytes.
   /* 00000007 */  "\0x74\0x00"                           /*  je 00000009h
 
 
+One from hh86 in 6 bytes
+
+  /* 00000000 */  "\0x8C\0xE8"                           /*  mov ax, gs
+  /* 00000002 */  "\0x3C\0x33"                           /*  cmp al, 33h
+  /* 00000004 */  "\0x74\0x00"                           /*  je 00000006h
+
+
 If you find any errors with these examples, don't hesitate to contact 
 and correct me.
 
@@ -189,4 +196,3 @@ References:
     
    [2]: isX64 Gem
       http://www.ragestorm.net/blogs/?p=376
-   
